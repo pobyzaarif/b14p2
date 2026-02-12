@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/pobyzaarif/b14p2/service/inventory"
+	"github.com/pobyzaarif/b14p2/util/db"
 )
 
 type SQLRepository struct {
@@ -18,8 +19,9 @@ func NewSQLRepository(db *sql.DB) *SQLRepository {
 }
 
 func (r *SQLRepository) GetAll(page int, limit int) (invs []inventory.Inventory, err error) {
+	limit, offset := db.GetPagination(page, limit)
 	ctx := context.Background()
-	rows, err := r.DB.QueryContext(ctx, "SELECT code, name, description, stock FROM inventories LIMIT ?", limit)
+	rows, err := r.DB.QueryContext(ctx, "SELECT code, name, description, stock FROM inventories LIMIT ? OFFSET ?", limit, offset)
 	if err != nil {
 		return invs, err
 	}
