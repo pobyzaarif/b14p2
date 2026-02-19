@@ -62,7 +62,7 @@ func main() {
 		_ = json.NewEncoder(w).Encode(map[string]string{"message": http.StatusText(http.StatusInternalServerError)})
 	}
 
-	router.GET("/api/v1/inventory", inventoryController.GetAll)
+	router.GET("/api/v1/inventory", MiddlewareAPIKey(inventoryController.GetAll))
 
 	router.Handler(http.MethodGet, "/swagger/*any", httpSwagger.WrapHandler)
 
@@ -76,5 +76,19 @@ func main() {
 	err := server.ListenAndServe()
 	if err != nil {
 		log.Fatalf("Failed to start server: %v", err)
+	}
+}
+
+func MiddlewareAPIKey(next httprouter.Handle) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+		// logic to check api key
+		apiKey := r.Header.Get("x-api-key")
+		if apiKey != os.Getenv("APP_API_KEY") {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+
+		next(w, r, p)
 	}
 }
