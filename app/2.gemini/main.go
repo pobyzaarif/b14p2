@@ -13,6 +13,7 @@ import (
 
 func main() {
 	_, _ = askGemini("who are you?")
+	askGeminiWithNativeAPI()
 }
 
 func askGemini(question string) (res string, err error) {

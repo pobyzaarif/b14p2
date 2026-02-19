@@ -7,6 +7,8 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 func InitDatabase() *sql.DB {
@@ -26,6 +28,21 @@ func InitDatabase() *sql.DB {
 	}
 
 	fmt.Println("Connect to the database succesfully")
+
+	return db
+}
+
+func InitDatabaseWithGORM() *gorm.DB {
+	dsn := ""
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		fmt.Println("Failed to connect to the database")
+		panic(err)
+	}
+
+	if os.Getenv("DB_DEBUG") == "true" {
+		return db.Debug()
+	}
 
 	return db
 }
